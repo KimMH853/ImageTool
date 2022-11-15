@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.js"></script>
+
+    
+    <style>
+        body {
+            background-color: grey;
+            
+        }
+        canvas {
+            
+            
+            width: 500;
+            height: 500;
+        }
+        .clicked {
+        color: gold;
+      }   
+    </style>
+</head>
+<body onload="draw();">
+    <button type="button" onclick="move();" class="button1">이동</button>
+    <button type="button" >회전</button>
+    <button type="button" onclick="size();" class="button1">사이즈변경</button>
+    <button type="button">crop</button>
+    <button type="button">제출</button>
+    <canvas id="c" width=600 height=600></canvas>
+    
+    <script>
+        var canvas = new fabric.Canvas('c'); 
+        canvas.backgroundColor = 'rgba(255,255,255,1)';
+
+;       function draw(){
+            fabric.Image.fromURL('https://images.unsplash.com/photo-1603348929190-0257ea827c97?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80', function(oImg) {
+                oImg.scale(0.4);
+                // oImg.setWidth(200);
+                // oImg.setHeight(200);
+                oImg.set({ left: 20, top: 50, selectable: false });
+                canvas.add(oImg);
+            });
+            
+        }
+
+        function move(){
+            event.target.classList.add("clicked");
+            
+            canvas.item(0).selectable= true;
+            canvas.item(0).hasControls = canvas.item(0).hasBorders = false;
+            
+             canvas.on({
+                'mouse:down': function (e) {
+                    if (e.target) {
+                        e.target.opacity = 0.5;
+                        
+                        canvas.renderAll();
+                    }
+                },
+                'mouse:up': function (e) {
+                    if (e.target) {
+                        e.target.opacity = 1;
+                        canvas.renderAll();
+                    }
+                },
+                'object:moved': function (e) {
+                    e.target.opacity = 0.5;
+                },
+                'object:modified': function (e) {
+                    e.target.opacity = 1;
+                }
+            });
+            this.__canvases.push(canvas);
+        }
+
+        function size() {
+            event.target.classList.add("clicked");
+
+            canvas.item(0).selectable = true;
+            canvas.item(0).lockRotation = true;
+        }
+
+        //setControlsVisibility(옵션 선택) → { fabric.Object }
+    </script>
+</body>
+</html>
