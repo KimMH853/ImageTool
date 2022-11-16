@@ -27,14 +27,13 @@
 </head>
 <body onload="draw();">
     <button type="button" onclick="move();" class="button1">이동</button>
-    <button type="button" >회전</button>
+    <button type="button" onclick="rotation();">회전</button>
     <button type="button" onclick="size();" class="button1">사이즈변경</button>
-    <button type="button">crop</button>
+    <button type="button" onclick="crop();">crop</button>
+    <button type="button" onclick="crop1();">확인</button>
     <button type="button">제출</button>
-    <canvas id="c" width=600 height=600></canvas>
-    <div>브랜치 잘 만들어 졌나요?</div>
-    <div>다시 한번더</div>
-    <div>이슈1 수정</div>
+    <canvas id="c" width=600 height=600 style="-moz-user-select: none; cursor: crosshair;"></canvas>
+
     <script>
         var canvas = new fabric.Canvas('c'); 
         canvas.backgroundColor = 'rgba(255,255,255,1)';
@@ -80,14 +79,68 @@
             this.__canvases.push(canvas);
         }
 
+        function rotation() {
+            event.target.classList.add("clicked");
+            
+            canvas.item(0).selectable = true;
+            canvas.item(0).lockScalingX = true;
+            canvas.item(0).lockScalingY = true;
+
+        }
         function size() {
             event.target.classList.add("clicked");
 
             canvas.item(0).selectable = true;
             canvas.item(0).lockRotation = true;
         }
+        var selectionRect;
+        function crop() {
+            event.target.classList.add("clicked");
+
+            //canvas.item(0).selectable = true;
+
+            selectionRect = new fabric.Rect({
+                fill: 'rgba(0,0,0,0.3)',
+                originX: 'left',
+                originY: 'top',
+                stroke: 'black',
+                opacity: 1,
+                width: canvas.item(0).width,
+                height: canvas.item(0).height,
+                hasRotatingPoint: false,
+                transparentCorners: false,
+                cornerColor: 'white',
+                cornerStrokeColor: 'black',
+                borderColor: 'black',
+            });
+
+            selectionRect.scaleToWidth(300);
+            canvas.centerObject(selectionRect);
+            selectionRect.visible = true;
+            canvas.add(selectionRect);
+
+            //canvas.preserveObjectStacking = true;
+            canvas.setActiveObject(selectionRect);
+        }
+        function crop1() {
+                let rect = new fabric.Rect({
+                left: selectionRect.left,
+                top: selectionRect.top,
+                width: selectionRect.getScaledWidth(),
+                height: selectionRect.getScaledHeight(),
+                absolutePositioned: true
+            });
+
+            canvas.item(0).clipPath = rect;
+
+            canvas.remove(selectionRect);
+
+            canvas.renderAll();
+            };
 
         //setControlsVisibility(옵션 선택) → { fabric.Object }
+        // perPixelTargetFind: 부울
+        //     'true'로 설정하면 경계 상자에 따르지 않고 픽셀 단위로 캔버스에서 객체를 "발견"합니다.
     </script>
 </body>
 </html>
