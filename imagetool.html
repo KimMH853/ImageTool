@@ -7,16 +7,11 @@
     <title>Document</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.js"></script>
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     
     <style>
-        body {
-            background-color: grey;
-            @media {
-                
-            }
-            
-        }
+        
         /* canvas {
             
             
@@ -24,8 +19,19 @@
             height: 500;
         } */
         .clicked {
-        color: gold;
-      }   
+            color: gold;
+        }  
+        .canvas-container { 
+            margin:0 auto ;
+        } 
+        .button-container { 
+            text-align: center;   
+            margin: 10px;                 
+        } 
+        .btn {
+            display :inline-block;
+            
+        }
     </style>
 </head>
 <body onload="draw();">
@@ -35,8 +41,8 @@
     <button type="button" onclick="crop();">crop</button>
     <button type="button" onclick="crop1();">확인</button>
     <button type="button">제출</button>
-    <canvas id="c" width=600 height=600></canvas>
-   
+    <canvas id="c" width=600 height=600 ></canvas>
+
     <script>
         var canvas = new fabric.Canvas('c'); 
         canvas.backgroundColor = 'rgba(255,255,255,1)';
@@ -53,38 +59,60 @@
         }
 
         function move(){
-            event.target.classList.add("clicked");
-            
-            canvas.item(0).selectable= true;
-            canvas.item(0).hasControls = canvas.item(0).hasBorders = false;
-            
-             canvas.on({
-                'mouse:down': function (e) {
-                    if (e.target) {
+             const clickedClass = "clicked";
+            if(event.target.classList.contains(clickedClass)) {
+                console.log("끄기");
+                canvas.skipTargetFind = true; // <-this cause object could be selectable!
+                canvas.item(0).selectable = false;
+                canvas.renderAll();
+                
+                //canvas.selectable = false;
+                //canvas.set("selectable", false);
+                event.target.classList.remove("clicked");
+                //oImg.set({ left: 20, top: 50, selectable: false });
+                //canvas.item(0).set({ selection: false })
+                console.log(canvas.item(0));
+                // canvas.forEachObject(function (object) {
+                //     object.selectable = false;
+                // });
+                
+                canvas.item(0).hasControls = canvas.item(0).hasBorders = true;
+            } else {
+                event.target.classList.add(clickedClass);
+                console.log("켜기");
+                canvas.skipTargetFind = false;
+                canvas.item(0).selectable = true;
+                canvas.item(0).hasControls = canvas.item(0).hasBorders = false;
+
+                canvas.on({
+                    'mouse:down': function (e) {
+                        if (e.target) {
+                            e.target.opacity = 0.5;
+
+                            canvas.renderAll();
+                        }
+                    },
+                    'mouse:up': function (e) {
+                        if (e.target) {
+                            e.target.opacity = 1;
+                            canvas.renderAll();
+                        }
+                    },
+                    'object:moved': function (e) {
                         e.target.opacity = 0.5;
-                        
-                        canvas.renderAll();
-                    }
-                },
-                'mouse:up': function (e) {
-                    if (e.target) {
+                    },
+                    'object:modified': function (e) {
                         e.target.opacity = 1;
-                        canvas.renderAll();
+                    },
+                    'after:render': function () {
+                        const item = canvas.item(0)
+                        if (!item.isOnScreen()) {
+                            item.setCoords()
+                        }
                     }
-                },
-                'object:moved': function (e) {
-                    e.target.opacity = 0.5;
-                },
-                'object:modified': function (e) {
-                    e.target.opacity = 1;
-                },
-                'after:render': function () {
-                    const item = canvas.item(0)
-                    if (!item.isOnScreen()) {
-                        item.setCoords()
-                    }
-                }
-            });
+                });
+            }
+            
             //this.__canvases.push(canvas);
         }
 
