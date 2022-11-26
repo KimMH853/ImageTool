@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.5.0/fabric.min.js"></script>
+    
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.5.0/fabric.min.js"></script>
+<canvas id="c" width="400" height="400"></canvas>
+<div id="bt"></div>
+
+    <script>
+    var canvas = new fabric.Canvas('c');
+    canvas.backgroundColor = 'yellow';
+    var li = [];
+
+    canvas.renderAll();
+
+    fabric.Image.fromURL('http://fabricjs.com/assets/pug_small.jpg', function (myImg) {
+        var img1 = myImg.set({
+            left: 0,
+            top: 0,
+            width: 400,
+            height: 500
+        });
+        canvas.add(img1);
+        var green = new fabric.Rect({
+            left: 50,
+            top: 50,
+            width: 50,
+            height: 50,
+            fill: 'rgba(255,255,255,1)',
+            stroke: 'rgba(34,177,76,1)',
+            strokeWidth: 5,
+            name: "green",
+            hasRotatingPoint: false
+        });
+        var yellow = new fabric.Rect({
+            left: 150,
+            top: 50,
+            width: 50,
+            height: 50,
+            fill: 'rgba(255,255,255,1)',
+            stroke: 'rgba(255,255,0,1)',
+            strokeWidth: 5,
+            name: "yellow",
+            hasRotatingPoint: false
+        });
+        var red = new fabric.Rect({
+            left: 250,
+            top: 50,
+            width: 50,
+            height: 50,
+            fill: 'rgba(255,255,255,1)',
+            stroke: 'rgba(255,0,0,1)',
+            strokeWidth: 5,
+            name: "red",
+            hasRotatingPoint: false
+        });
+        canvas.add(green, yellow, red);
+        li.push(green);
+        li.push(yellow);
+        li.push(red);
+        li.some(v => {
+            var btn = document.createElement("BUTTON"); // Create a <button> elem
+            btn.innerHTML = v.name;
+            btn.addEventListener('click', function (e) {
+                var name = e.target
+                if (name.innerText == "green") {
+                    canvas.setActiveObject(li[0]);
+                }
+                if (name.innerText == "yellow") {
+                    canvas.setActiveObject(li[1]);
+                }
+                if (name.innerText == "red") {
+                    canvas.setActiveObject(li[2]);
+                }
+            }); // Insert text
+            document.body.appendChild(btn);
+        });
+        console.log(li);
+    });
+
+    canvas.on({
+        'object:moving': function (e) {
+            //makes objects update their coordinates while being moved
+            e.target.setCoords();
+        },
+        'object:scaling': function (e) {
+            //makes objects update their coordinates while being scaled
+            e.target.setCoords();
+        }
+    });
+
+    //the after:render event allows you to perform a draw function on each frame after it is rendered
+    canvas.on('after:render', function () {
+
+        var ctx = canvas.contextContainer,
+            obj = canvas.getActiveObject();
+
+        if (obj) {
+            //set the fill color of the overlay
+            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+            var bound = obj.getBoundingRect();
+            ctx.beginPath();
+            //draw rectangle to the left of the selection
+            ctx.rect(0, 0, bound.left, canvas.height);
+            //draw rectangle to the right of the selection
+            ctx.rect(bound.left + bound.width, 0, canvas.width - bound.left - bound.width, canvas.height);
+            //draw rectangle above the selection
+            ctx.rect(bound.left, 0, bound.width, bound.top);
+            //draw rectangle below the selection
+            ctx.rect(bound.left, bound.top + bound.height, bound.width, canvas.height - bound.top - bound.height)
+            ctx.fill();
+        }
+    });
+
+    </script>
+</body>
+</html>
