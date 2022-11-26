@@ -58,7 +58,9 @@
         <canvas id="c" ></canvas>
     </div>
        
-    
+    <div id="coord">
+
+    </div>
    
     <script>
         var canvas = new fabric.Canvas('c'); 
@@ -105,7 +107,7 @@
             stroke: 'black',
             width: 600,
             height: 600,
-            selectable: false
+            selectable: false,
         });
 
         // "add" rectangle onto canvas
@@ -290,41 +292,20 @@
        
         //saveImg.URL.createObjectUrl=dataURL;        
         function save(blob) {
-            // canvas.getElement().toBlob(function (blob) {
-            //     saveAs(blob, "canvas.png");
-            // });
-
-            //렉클의 데이터 유알엘을 가져오고
-            //위의 유알엘을 블롭으로 만드는 함수의 파라미터로 넣고
-            // 그 반환값인 블롭을 세이브애즈의 파라미터로 넣고
+  
 
             canvas.forEachObject(function (obj) {
                 var rectObj = obj.getBoundingRect();
                 const rectDataUrl = canvas.toDataURL(rectObj)
                 var blob = dataURItoBlob(rectDataUrl)
                 saveAs(blob, "canvas.png");
+
         })
+       const tlCoords = rect.aCoords.tl
+        const coord = document.getElementById("coord")
+        coord.innerHTML = `x : ${tlCoords.x}, y : ${tlCoords.y}`
     }
 
-        // function dataURItoBlob(dataURI) {
-        //         // convert base64/URLEncoded data component to raw binary data held in a string
-        //         var byteString;
-        //         if (dataURI.split(',')[0].indexOf('base64') >= 0)
-        //             byteString = atob(dataURI.split(',')[1]);
-        //         else
-        //             byteString = unescape(dataURI.split(',')[1]);
-
-        //         // separate out the mime component
-        //         var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-        //         // write the bytes of the string to a typed array
-        //         var ia = new Uint8Array(byteString.length);
-        //         for (var i = 0; i < byteString.length; i++) {
-        //             ia[i] = byteString.charCodeAt(i);
-        //         }
-
-        //         return new Blob([ia], { type: mimeString });
-        //     }
 
             function dataURItoBlob(dataURI) {
                     var binary = atob(dataURI.split(',')[1]);
@@ -334,7 +315,7 @@
                     }
                     return new Blob([new Uint8Array(array)], { type: 'image/jpeg' });
                 }
-    
+        
     </script>
 </body>
 </html>
