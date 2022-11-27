@@ -16,23 +16,15 @@
     />
 
     <style>
-      /* canvas {
-            
-            
-            width: 500;
-            height: 500;
-        } */
       html,
       body {
         width: 100%;
         height: 100%;
       }
-      .clicked {
-        color: gold;
-      }
+
       .wrap {
         width: 100%;
-        height: 90vh;
+        height: 80vh;
         margin: 0;
         padding: 0;
       }
@@ -47,32 +39,23 @@
     </style>
   </head>
   <body onload="draw();">
-    <!-- onload="draw();" -->
     <div class="button-container">
-      <button
-        type="button"
-        class="btn btn-outline-dark"
-        onclick="move();"
-        class="button1"
-      >
+      <button type="button" class="btn btn-outline-dark" onclick="move();">
         이동
       </button>
       <button type="button" class="btn btn-outline-dark" onclick="rotation();">
         회전
       </button>
+      <button type="button" class="btn btn-outline-dark" onclick="size();">
+        사이즈변경
+      </button>
       <button
         type="button"
         class="btn btn-outline-dark"
-        onclick="size();"
-        class="button1"
+        onclick="crop();"
+        id="crop"
       >
-        사이즈변경
-      </button>
-      <button type="button" class="btn btn-outline-dark" onclick="crop();">
         crop
-      </button>
-      <button type="button" class="btn btn-outline-dark" onclick="crop1();">
-        확인
       </button>
       <button type="button" class="btn btn-outline-dark" onclick="save();">
         제출
@@ -86,36 +69,30 @@
     <div id="coord"></div>
 
     <script>
-      var canvas = new fabric.Canvas("c");
-      var windowHeight = document.getElementById("wrap").clientHeight;
-      var windowWidth = document.getElementById("wrap").clientWidth;
-      //fabric.Object.prototype.originX = fabric.Object.prototype.originY = 'center';
-      // canvas.backgroundColor = 'rgba(255,255,255,1)';
-      // canvas.setHeight(document.getElementsByClassName('wrap').clientHeight);
-      // canvas.setWidth(document.getElementsByClassName('wrap').clientWidth);
-      //console.log(document.getElementById('wrap').clientWidth);
-      (function () {
-        //var canvas = new fabric.Canvas('c');
+      const canvas = new fabric.Canvas("c");
+      const windowHeight = document.getElementById("wrap").clientHeight;
+      const windowWidth = document.getElementById("wrap").clientWidth;
+      canvas.setHeight(windowHeight);
+      canvas.setWidth(windowWidth);
 
-        // window.addEventListener('resize', resizeCanvas, false);
+      const rect = new fabric.Rect({
+        left: windowWidth / 2,
+        top: windowHeight / 2,
+        originX: "center",
+        originY: "center",
+        fill: "white",
+        stroke: "black",
+        width: 700,
+        height: 500,
+        selectable: false,
+      });
+      canvas.add(rect);
 
-        function resizeCanvas() {
-          canvas.setHeight(windowHeight);
-          canvas.setWidth(windowWidth);
-          canvas.renderAll();
-        }
-
-        // resize on init
-        resizeCanvas();
-      })();
-
-      function draw() {
+      const draw = function () {
         fabric.Image.fromURL(
           "https://images.unsplash.com/photo-1603348929190-0257ea827c97?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
           function (oImg) {
             oImg.scale(0.4);
-            // oImg.setWidth(200);
-            // oImg.setHeight(200);
             oImg.set({
               left: windowWidth / 2,
               top: windowHeight / 2,
@@ -127,38 +104,17 @@
           },
           { crossOrigin: "Anonymous" }
         );
-      }
+      };
 
-      // create a rectangle object
-      var rect = new fabric.Rect({
-        left: windowWidth / 2,
-        top: windowHeight / 2,
-        originX: "center",
-        originY: "center",
-        fill: "white",
-        stroke: "black",
-        width: 600,
-        height: 600,
-        selectable: false,
-      });
+      const clickedClass = "active";
 
-      // "add" rectangle onto canvas
-      canvas.add(rect);
-      function move() {
-        const clickedClass = "clicked";
+      const move = function () {
         if (event.target.classList.contains(clickedClass)) {
-          canvas.skipTargetFind = true; // <-this cause object could be selectable!
+          canvas.skipTargetFind = true;
           canvas.item(1).selectable = false;
           canvas.renderAll();
 
-          //canvas.selectable = false;
-          //canvas.set("selectable", false);
-          event.target.classList.remove("clicked");
-          //oImg.set({ left: 20, top: 50, selectable: false });
-          //canvas.item(1).set({ selection: false })
-          // canvas.forEachObject(function (object) {
-          //     object.selectable = false;
-          // });
+          event.target.classList.remove("active");
 
           canvas.item(1).hasControls = canvas.item(1).hasBorders = true;
         } else {
@@ -166,6 +122,8 @@
           canvas.skipTargetFind = false;
           canvas.item(1).selectable = true;
           canvas.item(1).hasControls = canvas.item(1).hasBorders = false;
+          canvas.item(1).lockMovementX = false;
+          canvas.item(1).lockMovementY = false;
 
           canvas.on({
             "mouse:down": function (e) {
@@ -195,154 +153,177 @@
             },
           });
         }
+      };
 
-        //this.__canvases.push(canvas);
-      }
-
-      function rotation() {
-        event.target.classList.add("clicked");
-
-        canvas.item(1).selectable = true;
-        canvas.setActiveObject(canvas.item(1));
-        canvas.item(1).setControlsVisibility({
-          bl: false,
-          br: false,
-          mb: false,
-          ml: false,
-          mr: false,
-          mt: false,
-          tl: false,
-          tr: false,
-        });
-        canvas.item(1).lockMovementX = true;
-        canvas.item(1).lockMovementY = true;
-        canvas.renderAll();
-      }
-      function size() {
-        event.target.classList.add("clicked");
-
-        canvas.item(1).selectable = true;
-        canvas.item(1).setControlVisible("mtr", false);
-        canvas.setActiveObject(canvas.item(1));
-        canvas.item(1).lockMovementX = true;
-        canvas.item(1).lockMovementY = true;
-        canvas.renderAll();
-      }
-      var selectionRect;
-      function crop() {
-        event.target.classList.add("clicked");
-
-        //canvas.item(1).selectable = true;
-
-        selectionRect = new fabric.Rect({
-          fill: "rgba(0,0,0,0.3)",
-          originX: "left",
-          originY: "top",
-          stroke: "black",
-          opacity: 1,
-          width: canvas.item(1).width,
-          height: canvas.item(1).height,
-          hasRotatingPoint: false,
-          transparentCorners: false,
-          cornerColor: "white",
-          cornerStrokeColor: "black",
-          borderColor: "black",
-        });
-
-        selectionRect.scaleToWidth(300);
-        canvas.centerObject(selectionRect);
-        selectionRect.visible = true;
-        canvas.add(selectionRect);
-
-        //canvas.preserveObjectStacking = true;
-        canvas.setActiveObject(selectionRect);
-      }
-      function crop1() {
-        let rect = new fabric.Rect({
-          left: selectionRect.left,
-          top: selectionRect.top,
-          width: selectionRect.getScaledWidth(),
-          height: selectionRect.getScaledHeight(),
-          absolutePositioned: true,
-        });
-
-        // add to the current image clicpPath property
-        canvas.item(1).clipPath = rect;
-
-        // remove the mask layer
-        canvas.remove(selectionRect);
-
-        // init new image instance
-        var cropped = new Image();
-        //cropped.crossOrigin = 'Anonymous';
-
-        // set src value of canvas croped area as toDataURL
-        cropped.src = canvas.toDataURL({
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-          height: rect.height,
-        });
-
-        // after onload clear the canvas and add cropped image to the canvas
-        cropped.onload = function () {
-          //canvas.item(1).clear();
-          canvas.remove(canvas.item(1));
-          image = new fabric.Image(cropped);
-          image.left = rect.left;
-          image.top = rect.top;
-          image.setCoords();
-          canvas.add(image);
+      const rotation = function () {
+        if (event.target.classList.contains(clickedClass)) {
+          canvas.item(1).selectable = false;
+          canvas.skipTargetFind = true;
+          canvas.item(1).setControlsVisibility({
+            mtr: false,
+          });
           canvas.renderAll();
-        };
-      }
-      var dataURL = canvas.toDataURL({
-        format: "png",
-        left: 100,
-        top: 100,
-        width: 200,
-        height: 200,
-      });
-      var saveImg = new Image();
 
-      function save(blob) {
+          event.target.classList.remove("active");
+        } else {
+          event.target.classList.add("active");
+          canvas.skipTargetFind = false;
+          canvas.item(1).selectable = true;
+          canvas.setActiveObject(canvas.item(1));
+          canvas.item(1).setControlsVisibility({
+            bl: false,
+            br: false,
+            mb: false,
+            ml: false,
+            mr: false,
+            mt: false,
+            tl: false,
+            tr: false,
+            mtr: true,
+          });
+          canvas.item(1).lockMovementX = true;
+          canvas.item(1).lockMovementY = true;
+          canvas.renderAll();
+        }
+      };
+
+      const size = function () {
+        if (event.target.classList.contains(clickedClass)) {
+          canvas.item(1).selectable = false;
+          canvas.skipTargetFind = true;
+          canvas.item(1).setControlsVisibility({
+            bl: false,
+            br: false,
+            mb: false,
+            ml: false,
+            mr: false,
+            mt: false,
+            tl: false,
+            tr: false,
+            mtr: false,
+          });
+          canvas.renderAll();
+
+          event.target.classList.remove("active");
+        } else {
+          event.target.classList.add("active");
+          canvas.skipTargetFind = false;
+          canvas.item(1).selectable = true;
+          canvas.item(1).setControlsVisibility({
+            bl: true,
+            br: true,
+            mb: true,
+            ml: true,
+            mr: true,
+            mt: true,
+            tl: true,
+            tr: true,
+            mtr: false,
+          });
+          canvas.setActiveObject(canvas.item(1));
+          canvas.item(1).lockMovementX = true;
+          canvas.item(1).lockMovementY = true;
+          canvas.renderAll();
+        }
+      };
+      var selectionRect;
+
+      const crop = function () {
+        const btnElement = document.getElementById("crop");
+        if (event.target.classList.contains(clickedClass)) {
+          btnElement.innerText = "crop";
+          let rect = new fabric.Rect({
+            left: selectionRect.left,
+            top: selectionRect.top,
+            width: selectionRect.getScaledWidth(),
+            height: selectionRect.getScaledHeight(),
+            absolutePositioned: true,
+          });
+
+          canvas.item(1).clipPath = rect;
+          canvas.remove(selectionRect);
+          const cropped = new Image();
+          cropped.src = canvas.toDataURL({
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+          });
+          cropped.onload = function () {
+            canvas.remove(canvas.item(1));
+            image = new fabric.Image(cropped);
+            image.left = rect.left;
+            image.top = rect.top;
+            image.setCoords();
+            canvas.add(image);
+            canvas.renderAll();
+          };
+
+          event.target.classList.remove("active");
+        } else {
+          event.target.classList.add("active");
+
+          btnElement.innerText = "확인";
+
+          selectionRect = new fabric.Rect({
+            fill: "rgba(0,0,0,0.3)",
+            originX: "left",
+            originY: "top",
+            stroke: "black",
+            opacity: 1,
+            width: canvas.item(1).width,
+            height: canvas.item(1).height,
+            hasRotatingPoint: false,
+            transparentCorners: false,
+            cornerColor: "white",
+            cornerStrokeColor: "black",
+            borderColor: "black",
+          });
+
+          selectionRect.scaleToWidth(300);
+          canvas.centerObject(selectionRect);
+          selectionRect.visible = true;
+          canvas.add(selectionRect);
+          canvas.setActiveObject(selectionRect);
+          canvas.skipTargetFind = false;
+        }
+      };
+
+      const save = function (blob) {
         canvas.forEachObject(function (obj) {
-          var rectObj = obj.getBoundingRect();
+          const rectObj = obj.getBoundingRect();
           const rectDataUrl = canvas.toDataURL(rectObj);
-          var blob = dataURItoBlob(rectDataUrl);
+          const blob = dataURItoBlob(rectDataUrl);
           saveAs(blob, "canvas.png");
         });
         const tlCoords = rect.aCoords.tl;
         const coord = document.getElementById("coord");
         coord.innerHTML = `x : ${tlCoords.x}, y : ${tlCoords.y}`;
-      }
+      };
 
-      function dataURItoBlob(dataURI) {
-        var binary = atob(dataURI.split(",")[1]);
-        var array = [];
-        for (var i = 0; i < binary.length; i++) {
+      const dataURItoBlob = function (dataURI) {
+        const binary = atob(dataURI.split(",")[1]);
+        const array = [];
+        for (let i = 0; i < binary.length; i++) {
           array.push(binary.charCodeAt(i));
         }
         return new Blob([new Uint8Array(array)], { type: "image/jpeg" });
-      }
+      };
 
-      function resizeCanvas1() {
+      const resizeCanvas = function () {
         const outerCanvasContainer = document.getElementById("wrap");
-
         const ratio = canvas.getWidth() / canvas.getHeight();
         const containerWidth = outerCanvasContainer.clientWidth;
         const scale = containerWidth / canvas.getWidth();
-
         const zoom = canvas.getZoom() * scale;
-        console.log(zoom.toFixed(3) + "//" + scale.toFixed(3));
         canvas.setDimensions({
           width: containerWidth,
           height: containerWidth / ratio,
         });
         canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
-      }
+      };
 
-      window.addEventListener("resize", resizeCanvas1);
+      window.addEventListener("resize", resizeCanvas);
     </script>
   </body>
 </html>
