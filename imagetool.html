@@ -1,287 +1,329 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+      crossorigin="anonymous"
+    />
+
     <style>
-        
-        /* canvas {
-            
-            
-            width: 500;
-            height: 500;
-        } */
-        html, body {
-            width: 100%;
-            height: 100%;
-        }
-        .clicked {
-            color: gold;
-        }  
-        .wrap { 
-            width: 100%;
-            height: 90vh;
-            margin: 0;
-            padding: 0;
-        }
-        .button-container { 
-            text-align: center;   
-            margin: 0;
-            padding: 10px;                 
-        } 
-        .btn {
-            display :inline-block;
-            
-        }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
+
+      .wrap {
+        width: 100%;
+        height: 80vh;
+        margin: 0;
+        padding: 0;
+      }
+      .button-container {
+        text-align: center;
+        margin: 0;
+        padding: 10px;
+      }
+      .btn {
+        display: inline-block;
+      }
     </style>
-</head>
-<body onload="draw();"> 
-    <!-- onload="draw();" -->
+  </head>
+  <body onload="draw();">
     <div class="button-container">
-        <button type="button" class="btn  btn-outline-dark" onclick="move();" class="button1">이동</button>
-        <button type="button" class="btn  btn-outline-dark" onclick="rotation();">회전</button>
-        <button type="button" class="btn  btn-outline-dark" onclick="size();" class="button1">사이즈변경</button>
-        <button type="button" class="btn btn-outline-dark" onclick="crop();">crop</button>
-        <button type="button" class="btn btn-outline-dark" onclick="crop1();">확인</button>
-        <button type="button" class="btn btn-outline-dark" >제출</button>
+      <button type="button" class="btn btn-outline-dark" onclick="move();">
+        이동
+      </button>
+      <button type="button" class="btn btn-outline-dark" onclick="rotation();">
+        회전
+      </button>
+      <button type="button" class="btn btn-outline-dark" onclick="size();">
+        사이즈변경
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-dark"
+        onclick="crop();"
+        id="crop"
+      >
+        crop
+      </button>
+      <button type="button" class="btn btn-outline-dark" onclick="save();">
+        제출
+      </button>
     </div>
-    
+
     <div class="wrap" id="wrap">
-        <canvas id="c" ></canvas>
+      <canvas id="c"></canvas>
     </div>
-       
-    
-   
+
+    <div id="coord"></div>
+
     <script>
-        var canvas = new fabric.Canvas('c'); 
-         //fabric.Object.prototype.originX = fabric.Object.prototype.originY = 'center';
-        // canvas.backgroundColor = 'rgba(255,255,255,1)';
-        // canvas.setHeight(document.getElementsByClassName('wrap').clientHeight);
-        // canvas.setWidth(document.getElementsByClassName('wrap').clientWidth);
-        //console.log(document.getElementById('wrap').clientWidth);
-        (function () {
-                //var canvas = new fabric.Canvas('c');
+      const canvas = new fabric.Canvas("c");
+      const windowHeight = document.getElementById("wrap").clientHeight;
+      const windowWidth = document.getElementById("wrap").clientWidth;
+      canvas.setHeight(windowHeight);
+      canvas.setWidth(windowWidth);
 
-                window.addEventListener('resize', resizeCanvas, false);
+      const rect = new fabric.Rect({
+        left: windowWidth / 2,
+        top: windowHeight / 2,
+        originX: "center",
+        originY: "center",
+        fill: "white",
+        stroke: "black",
+        width: 700,
+        height: 500,
+        selectable: false,
+      });
+      canvas.add(rect);
 
-                function resizeCanvas() {
-                    canvas.setHeight(document.getElementById('wrap').clientHeight);
-                    canvas.setWidth(document.getElementById('wrap').clientWidth);
-                    canvas.renderAll();
-                }
-                
-                // resize on init
-                resizeCanvas();
-            })();
+      const draw = function () {
+        fabric.Image.fromURL(
+          "https://images.unsplash.com/photo-1603348929190-0257ea827c97?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+          function (oImg) {
+            oImg.scale(0.4);
+            oImg.set({
+              left: windowWidth / 2,
+              top: windowHeight / 2,
+              originX: "center",
+              originY: "center",
+              selectable: false,
+            });
+            canvas.add(oImg);
+          },
+          { crossOrigin: "Anonymous" }
+        );
+      };
 
-        function draw(){
-            fabric.Image.fromURL('https://images.unsplash.com/photo-1603348929190-0257ea827c97?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80', function(oImg) {
-                oImg.scale(0.4);
-                // oImg.setWidth(200);
-                // oImg.setHeight(200);
-                oImg.set({ left: 20, top: 50, selectable: false });
-                canvas.add(oImg);
-            }, { crossOrigin: 'Anonymous' });
-            
+      const clickedClass = "active";
+
+      const move = function () {
+        if (event.target.classList.contains(clickedClass)) {
+          canvas.skipTargetFind = true;
+          canvas.item(1).selectable = false;
+          canvas.renderAll();
+
+          event.target.classList.remove("active");
+
+          canvas.item(1).hasControls = canvas.item(1).hasBorders = true;
+        } else {
+          event.target.classList.add(clickedClass);
+          canvas.skipTargetFind = false;
+          canvas.item(1).selectable = true;
+          canvas.item(1).hasControls = canvas.item(1).hasBorders = false;
+          canvas.item(1).lockMovementX = false;
+          canvas.item(1).lockMovementY = false;
+
+          canvas.on({
+            "mouse:down": function (e) {
+              if (e.target) {
+                e.target.opacity = 0.5;
+
+                canvas.renderAll();
+              }
+            },
+            "mouse:up": function (e) {
+              if (e.target) {
+                e.target.opacity = 1;
+                canvas.renderAll();
+              }
+            },
+            "object:moved": function (e) {
+              e.target.opacity = 0.5;
+            },
+            "object:modified": function (e) {
+              e.target.opacity = 1;
+            },
+            "after:render": function () {
+              const item = canvas.item(1);
+              if (!item.isOnScreen()) {
+                item.setCoords();
+              }
+            },
+          });
         }
+      };
 
-        // create a rectangle object
-        var rect = new fabric.Rect({
-            left: 100,
-            top: 100,
-            // originX: 'center',
-            // originY: 'center',
-            fill: 'white',
-            stroke: 'black',
-            width: 600,
-            height: 600
+      const rotation = function () {
+        if (event.target.classList.contains(clickedClass)) {
+          canvas.item(1).selectable = false;
+          canvas.skipTargetFind = true;
+          canvas.item(1).setControlsVisibility({
+            mtr: false,
+          });
+          canvas.renderAll();
+
+          event.target.classList.remove("active");
+        } else {
+          event.target.classList.add("active");
+          canvas.skipTargetFind = false;
+          canvas.item(1).selectable = true;
+          canvas.setActiveObject(canvas.item(1));
+          canvas.item(1).setControlsVisibility({
+            bl: false,
+            br: false,
+            mb: false,
+            ml: false,
+            mr: false,
+            mt: false,
+            tl: false,
+            tr: false,
+            mtr: true,
+          });
+          canvas.item(1).lockMovementX = true;
+          canvas.item(1).lockMovementY = true;
+          canvas.renderAll();
+        }
+      };
+
+      const size = function () {
+        if (event.target.classList.contains(clickedClass)) {
+          canvas.item(1).selectable = false;
+          canvas.skipTargetFind = true;
+          canvas.item(1).setControlsVisibility({
+            bl: false,
+            br: false,
+            mb: false,
+            ml: false,
+            mr: false,
+            mt: false,
+            tl: false,
+            tr: false,
+            mtr: false,
+          });
+          canvas.renderAll();
+
+          event.target.classList.remove("active");
+        } else {
+          event.target.classList.add("active");
+          canvas.skipTargetFind = false;
+          canvas.item(1).selectable = true;
+          canvas.item(1).setControlsVisibility({
+            bl: true,
+            br: true,
+            mb: true,
+            ml: true,
+            mr: true,
+            mt: true,
+            tl: true,
+            tr: true,
+            mtr: false,
+          });
+          canvas.setActiveObject(canvas.item(1));
+          canvas.item(1).lockMovementX = true;
+          canvas.item(1).lockMovementY = true;
+          canvas.renderAll();
+        }
+      };
+      var selectionRect;
+
+      const crop = function () {
+        const btnElement = document.getElementById("crop");
+        if (event.target.classList.contains(clickedClass)) {
+          btnElement.innerText = "crop";
+          let rect = new fabric.Rect({
+            left: selectionRect.left,
+            top: selectionRect.top,
+            width: selectionRect.getScaledWidth(),
+            height: selectionRect.getScaledHeight(),
+            absolutePositioned: true,
+          });
+
+          canvas.item(1).clipPath = rect;
+          canvas.remove(selectionRect);
+          const cropped = new Image();
+          cropped.src = canvas.toDataURL({
+            left: rect.left,
+            top: rect.top,
+            width: rect.width,
+            height: rect.height,
+          });
+          cropped.onload = function () {
+            canvas.remove(canvas.item(1));
+            image = new fabric.Image(cropped);
+            image.left = rect.left;
+            image.top = rect.top;
+            image.setCoords();
+            canvas.add(image);
+            canvas.renderAll();
+          };
+
+          event.target.classList.remove("active");
+        } else {
+          event.target.classList.add("active");
+
+          btnElement.innerText = "확인";
+
+          selectionRect = new fabric.Rect({
+            fill: "rgba(0,0,0,0.3)",
+            originX: "left",
+            originY: "top",
+            stroke: "black",
+            opacity: 1,
+            width: canvas.item(1).width,
+            height: canvas.item(1).height,
+            hasRotatingPoint: false,
+            transparentCorners: false,
+            cornerColor: "white",
+            cornerStrokeColor: "black",
+            borderColor: "black",
+          });
+
+          selectionRect.scaleToWidth(300);
+          canvas.centerObject(selectionRect);
+          selectionRect.visible = true;
+          canvas.add(selectionRect);
+          canvas.setActiveObject(selectionRect);
+          canvas.skipTargetFind = false;
+        }
+      };
+
+      const save = function (blob) {
+        canvas.forEachObject(function (obj) {
+          const rectObj = obj.getBoundingRect();
+          const rectDataUrl = canvas.toDataURL(rectObj);
+          const blob = dataURItoBlob(rectDataUrl);
+          saveAs(blob, "canvas.png");
         });
+        const tlCoords = rect.aCoords.tl;
+        const coord = document.getElementById("coord");
+        coord.innerHTML = `x : ${tlCoords.x}, y : ${tlCoords.y}`;
+      };
 
-        // "add" rectangle onto canvas
-        canvas.add(rect);
-        function move(){
-             const clickedClass = "clicked";
-            if(event.target.classList.contains(clickedClass)) {
-                console.log("끄기");
-                canvas.skipTargetFind = true; // <-this cause object could be selectable!
-                canvas.item(0).selectable = false;
-                canvas.renderAll();
-                
-                //canvas.selectable = false;
-                //canvas.set("selectable", false);
-                event.target.classList.remove("clicked");
-                //oImg.set({ left: 20, top: 50, selectable: false });
-                //canvas.item(0).set({ selection: false })
-                console.log(canvas.item(0));
-                // canvas.forEachObject(function (object) {
-                //     object.selectable = false;
-                // });
-                
-                canvas.item(0).hasControls = canvas.item(0).hasBorders = true;
-            } else {
-                event.target.classList.add(clickedClass);
-                console.log("켜기");
-                canvas.skipTargetFind = false;
-                canvas.item(0).selectable = true;
-                canvas.item(0).hasControls = canvas.item(0).hasBorders = false;
-
-                canvas.on({
-                    'mouse:down': function (e) {
-                        if (e.target) {
-                            e.target.opacity = 0.5;
-
-                            canvas.renderAll();
-                        }
-                    },
-                    'mouse:up': function (e) {
-                        if (e.target) {
-                            e.target.opacity = 1;
-                            canvas.renderAll();
-                        }
-                    },
-                    'object:moved': function (e) {
-                        e.target.opacity = 0.5;
-                    },
-                    'object:modified': function (e) {
-                        e.target.opacity = 1;
-                    },
-                    'after:render': function () {
-                        const item = canvas.item(0)
-                        if (!item.isOnScreen()) {
-                            item.setCoords()
-                        }
-                    }
-                });
-            }
-            
-            //this.__canvases.push(canvas);
+      const dataURItoBlob = function (dataURI) {
+        const binary = atob(dataURI.split(",")[1]);
+        const array = [];
+        for (let i = 0; i < binary.length; i++) {
+          array.push(binary.charCodeAt(i));
         }
+        return new Blob([new Uint8Array(array)], { type: "image/jpeg" });
+      };
 
-        function rotation() {
-            event.target.classList.add("clicked");
-            
-            canvas.item(0).selectable = true;
-            canvas.setActiveObject(canvas.item(0));
-            canvas.item(0).setControlsVisibility({
-                'bl': false,
-                'br': false,
-                'mb': false,
-                'ml': false,
-                'mr': false,
-                'mt': false,
-                'tl': false,
-                'tr': false,
-            });
-            canvas.item(0).lockMovementX = true;
-            canvas.item(0).lockMovementY = true;
-            canvas.renderAll();
+      const resizeCanvas = function () {
+        const outerCanvasContainer = document.getElementById("wrap");
+        const ratio = canvas.getWidth() / canvas.getHeight();
+        const containerWidth = outerCanvasContainer.clientWidth;
+        const scale = containerWidth / canvas.getWidth();
+        const zoom = canvas.getZoom() * scale;
+        canvas.setDimensions({
+          width: containerWidth,
+          height: containerWidth / ratio,
+        });
+        canvas.setViewportTransform([zoom, 0, 0, zoom, 0, 0]);
+      };
 
-        }
-        function size() {
-            event.target.classList.add("clicked");
-
-            canvas.item(0).selectable = true;
-            canvas.item(0).setControlVisible('mtr', false);
-            canvas.setActiveObject(canvas.item(0));
-            canvas.item(0).lockMovementX = true;
-            canvas.item(0).lockMovementY = true;
-            canvas.renderAll();
-        }
-        var selectionRect;
-        function crop() {
-            event.target.classList.add("clicked");
-
-            //canvas.item(0).selectable = true;
-
-            selectionRect = new fabric.Rect({
-                fill: 'rgba(0,0,0,0.3)',
-                originX: 'left',
-                originY: 'top',
-                stroke: 'black',
-                opacity: 1,
-                width: canvas.item(0).width,
-                height: canvas.item(0).height,
-                hasRotatingPoint: false,
-                transparentCorners: false,
-                cornerColor: 'white',
-                cornerStrokeColor: 'black',
-                borderColor: 'black',
-            });
-
-            selectionRect.scaleToWidth(300);
-            canvas.centerObject(selectionRect);
-            selectionRect.visible = true;
-            canvas.add(selectionRect);
-
-            //canvas.preserveObjectStacking = true;
-            canvas.setActiveObject(selectionRect);
-        }
-        function crop1() {
-            //     let rect = new fabric.Rect({
-            //     left: selectionRect.left,
-            //     top: selectionRect.top,
-            //     width: selectionRect.getScaledWidth(),
-            //     height: selectionRect.getScaledHeight(),
-            //     absolutePositioned: true
-            // });
-
-            // canvas.item(0).clipPath = rect;
-
-            // canvas.remove(selectionRect);
-
-            // canvas.renderAll();
-
-            // create mask rectabgle for crop
-            let rect = new fabric.Rect({
-                left: selectionRect.left,
-                top: selectionRect.top,
-                width: selectionRect.getScaledWidth(),
-                height: selectionRect.getScaledHeight(),
-                absolutePositioned: true,
-            });
-
-            // add to the current image clicpPath property
-            canvas.item(0).clipPath = rect;
-
-            // remove the mask layer
-            canvas.remove(selectionRect);
-
-            // init new image instance
-            var cropped = new Image();
-            //cropped.crossOrigin = 'Anonymous';
-            
-            // set src value of canvas croped area as toDataURL
-            cropped.src = canvas.toDataURL({
-                left: rect.left,
-                top: rect.top,
-                width: rect.width,
-                height: rect.height,
-            });
-           
-            // after onload clear the canvas and add cropped image to the canvas
-            cropped.onload = function () {
-                //canvas.item(0).clear();
-                canvas.remove(canvas.item(0));
-                image = new fabric.Image(cropped);
-                image.left = rect.left;
-                image.top = rect.top;
-                image.setCoords();
-                canvas.add(image);
-                canvas.renderAll();
-            };    
-
-            };
-
-        //setControlsVisibility(옵션 선택) → { fabric.Object }
-        // perPixelTargetFind: 부울
-        //     'true'로 설정하면 경계 상자에 따르지 않고 픽셀 단위로 캔버스에서 객체를 "발견"합니다.
+      window.addEventListener("resize", resizeCanvas);
     </script>
-</body>
+  </body>
 </html>
